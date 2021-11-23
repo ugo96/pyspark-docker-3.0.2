@@ -6,11 +6,18 @@ all: clean raw-data-prep test build run
 
 run:
 	docker exec -it pyspark-container_spark-master_1 bash -c "\
-	/opt/spark/bin/spark-submit \
+	bin/spark-submit \
 		--master spark://spark-master:7077  \
-		--py-files /opt/spark/app/jobs.zip,/opt/spark/app/shared.zip,/opt/spark/app/libs.zip \
-		--files /opt/spark/app/config.json \
-		/opt/spark/app/main.py --job movies \
+		--py-files app/jobs.zip,app/shared.zip,app/libs.zip \
+		--files app/config.json \
+		app/main.py --job movies \
+		"
+	docker exec -it pyspark-container_spark-master_1 bash -c "\
+	bin/spark-submit \
+		--master spark://spark-master:7077  \
+		--py-files app/jobs.zip,app/shared.zip,app/libs.zip \
+		--files app/config.json \
+		app/main.py --job movie_genres \
 		"
 
 test:
@@ -24,8 +31,10 @@ build:
 	mkdir ./dist | true
 	cp pipeline/main.py ./dist
 	cp pipeline/config.json ./dist
-	cd pipeline && sudo zip -r ../dist/jobs.zip jobs && cd ..
-	cd pipeline && sudo zip -r ../dist/shared.zip shared && cd ..
+	cd pipeline && \
+		sudo zip -r ../dist/jobs.zip jobs \
+		sudo zip -r ../dist/shared.zip shared && \
+		cd ..
 	docker run --rm -v $(PWD):/foo -w /foo lambci/lambda:build-python3.7 \
 		pip install -r pipeline/requirements.txt -t ./dist/libs
 	cd ./dist/libs && sudo zip -r -D ../libs.zip .
@@ -38,8 +47,11 @@ clean:
 
 	# Delete image from docker and clear running containers for the image
 	docker-compose down --remove-orphans || true
-	docker rm -f $(docker ps -a -q) || true
-	docker volume rm $(docker volume ls -q) || true
+	# docker rm -f $(docker ps -a -q) || true
+	# docker volume rm $(docker volume ls -q) || true
+
+raw-data-prep:
+	python get_data.py
 
 build-image:
 	docker build -t $(image_name) .
@@ -49,6 +61,3 @@ build-image:
 		--master spark://spark-master:7077 \
 		examples/src/main/python/pi.py 1000
 	"
-
-raw-data-prep:
-	python get_data.py
