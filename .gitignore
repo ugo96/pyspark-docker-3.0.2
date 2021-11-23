@@ -5,6 +5,7 @@
 # Ignore build directory:
 data/
 dataset/
+pipeline/test_data_output/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

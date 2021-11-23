@@ -14,7 +14,7 @@ run:
 		"
 
 test:
-	pytest tests
+	cd pipeline && python -m pytest tests
 
 build:
 	# Copy data 

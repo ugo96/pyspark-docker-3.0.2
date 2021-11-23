@@ -22,7 +22,10 @@ class TestMoviesJob:
 
     def test_run_job(self, spark_session, mocker):
         test_config = {"output_data_path": "test_data_output"}
-        shutil.rmtree(test_config.get("output_data_path"))
+        try:
+            shutil.rmtree(test_config.get("output_data_path"))
+        except Exception as e:
+            print(e)
         test_data = spark_session.createDataFrame(
             [(1, "Toy Story (1995)", "Adventure"), (160646, "Goat (2016)", "Drama")],
             ["movieId", "title", "genres"],
