@@ -1,20 +1,21 @@
-version: "3.9"
+version: "3.3"
 services:
-  master:
+  spark-master:
     build: .
     ports:
       - "9090:8080"
       - "7077:7077"
+      - "4040:4040"
+    volumes:
+       - ./apps:/opt/spark-apps
+       - ./data:/opt/spark-data
     environment:
       - SPARK_LOCAL_IP=spark-master
       - SPARK_WORKLOAD=master
-    volumes:
-       - ./app:/opt/application
-
-  worker:
+  spark-worker:
     build: .
     depends_on:
-      - master
+      - spark-master
     environment:
       - SPARK_MASTER=spark://spark-master:7077
       - SPARK_WORKER_CORES=1
@@ -23,4 +24,5 @@ services:
       - SPARK_EXECUTOR_MEMORY=1G
       - SPARK_WORKLOAD=worker
     volumes:
-        - ./app:/opt/application
+       - ./apps:/opt/spark-apps
+       - ./data:/opt/spark-data
