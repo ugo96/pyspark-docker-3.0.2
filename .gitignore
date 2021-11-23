@@ -1,3 +1,11 @@
+# Ignore data files:
+*.csv
+*.pqt
+
+# Ignore build directory:
+apps/*
+data/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -20,12 +28,16 @@ parts/
 sdist/
 var/
 wheels/
+<<<<<<< HEAD
 pip-wheel-metadata/
 share/python-wheels/
+=======
+>>>>>>> master
 *.egg-info/
 .installed.cfg
 *.egg
 MANIFEST
+<<<<<<< HEAD
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
