@@ -12,6 +12,7 @@ run:
 		--files app/config.json \
 		app/main.py --job movies \
 		"
+
 	docker exec -it pyspark-container_spark-master_1 bash -c "\
 	bin/spark-submit \
 		--master spark://spark-master:7077  \
@@ -59,5 +60,5 @@ build-image:
 		/bin/bash /start-spark.sh; \
 		./bin/spark-submit \
 		--master spark://spark-master:7077 \
-		examples/src/main/python/pi.py 1000
+		examples/src/main/python/pi.py 1000 \
 	"
