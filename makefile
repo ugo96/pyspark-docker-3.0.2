@@ -2,26 +2,17 @@ SHELL=/bin/bash
 MAKEFLAGS += --silent
 image_name = pyspark_base
 
-all: clean raw-data-prep test build run
+all: clean build run
 
 run:
-	docker exec -it pyspark-container_spark-master_1 bash -c "\
-	bin/spark-submit \
-		--master spark://spark-master:7077  \
-		--py-files app/jobs.zip,app/shared.zip,app/libs.zip \
-		--files app/config.json \
-		app/main.py --job movies \
-		"
-
-	docker exec -it pyspark-container_spark-master_1 bash -c "\
-	bin/spark-submit \
-		--master spark://spark-master:7077  \
-		--py-files app/jobs.zip,app/shared.zip,app/libs.zip \
-		--files app/config.json \
-		app/main.py --job movie_genres \
-		"
+	docker exec -it pyspark-docker-302_spark-master_1 bash -c "\
+			bin/spark-submit \
+			--master spark://spark-master:7077  \
+			app/main.py \
+			"
 
 test:
+	pip install -r requirements.txt
 	cd pipeline && python -m pytest tests
 
 build:
@@ -31,17 +22,17 @@ build:
 	# Compile Job
 	mkdir ./dist | true
 	cp pipeline/main.py ./dist
-	cp pipeline/config.json ./dist
-	cd pipeline && \
-		sudo zip -r ../dist/jobs.zip jobs \
-		sudo zip -r ../dist/shared.zip shared && \
-		cd ..
-	docker run --rm -v $(PWD):/foo -w /foo lambci/lambda:build-python3.7 \
-		pip install -r pipeline/requirements.txt -t ./dist/libs
-	cd ./dist/libs && sudo zip -r -D ../libs.zip .
+	# cp pipeline/config.json ./dist
+	# cd pipeline && \
+	# 	sudo zip -r ../dist/jobs.zip jobs && \
+	# 	sudo zip -r ../dist/shared.zip shared && \
+	# 	cd ..
+	# docker run --rm -v $(PWD):/foo -w /foo lambci/lambda:build-python3.7 \
+	# 	pip install -r pipeline/requirements.txt -t ./dist/libs
+	# cd ./dist/libs && sudo zip -r -D ../libs.zip .
 
 	# Build cluster for running spark application
-	docker-compose up -d --build --scale spark-worker=2
+	docker-compose up -d --build --scale spark-worker=12
 
 clean:
 	sudo rm -rf dataset/* dist/* apps/* data/* 

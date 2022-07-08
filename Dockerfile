@@ -49,4 +49,6 @@ RUN \
 
 COPY start-spark.sh /
 
+RUN python -m pip install boto3
+
 CMD ["/bin/bash", "/start-spark.sh"]
